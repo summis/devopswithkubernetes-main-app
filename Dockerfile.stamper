@@ -1,0 +1,7 @@
+FROM rust:1.44-alpine
+
+COPY stamper .
+
+RUN cargo install --path .  --root /usr
+
+CMD ["/usr/bin/stamper"]

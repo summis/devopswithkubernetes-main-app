@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-app-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main-app
+  template:
+    metadata:
+      labels:
+        app: main-app
+    spec:
+      volumes: # Define volume
+        - name: shared-log
+          emptyDir: {}
+      containers:
+        - name: main-app-stamper
+          image: summila/main-app-stamper
+          volumeMounts: # Mount volume
+          - name: shared-log
+            mountPath: /var/log/main-app
+        - name: main-app-server
+          image: summila/main-app-server
+          volumeMounts: # Mount volume
+          - name: shared-log
+            mountPath: /var/log/main-app
