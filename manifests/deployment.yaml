@@ -22,7 +22,7 @@ spec:
           - name: shared-log
             mountPath: /var/log/main-app
         - name: main-app-server
-          image: summila/main-app-server
+          image: summila/main-app-server:1.11
           volumeMounts: # Mount volume
           - name: shared-log
             mountPath: /var/log/main-app
