@@ -25,6 +25,16 @@ fn read_timestamp() -> String {
 }
 
 
+fn read_counter() -> String {
+    let path = "/var/log/pong-app/counter.txt";
+    let count = match fs::read_to_string(path) {
+        Err(why) => panic!("couldn't read {}: {}", path, why),
+        Ok(file) => file,
+    };
+    return count;
+}
+
+
 // Server code based on https://gist.github.com/mjohnsullivan/e5182707caf0a9dbdf2d
 fn handle_read(mut stream: &TcpStream) {
     let mut buf = [0u8 ;4096];
@@ -56,12 +66,6 @@ fn handle_client(stream: TcpStream, response: String) {
 fn main() {
     // https://www.reddit.com/r/docker/comments/a8zhhl/rust_binary_listens_on_localhost3000_locally_not/
     let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
-    //let path = "/var/log/main-app/timestamp.txt";
-    //let now_string = match fs::read_to_string(path) {
-    //    Err(why) => panic!("couldn't read {}: {}", path, why),
-    //    Ok(file) => file,
-    //};
-    //let now = Arc::new(now_string);
     let hash = Arc::new(rand_string());
 
     // Start separate thread for loop. `move` allows using hash inside thread.
@@ -69,10 +73,9 @@ fn main() {
     {
         //let now = now.clone().to_string();
         let hash = hash.clone().to_string();
-        let now = read_timestamp();
         thread::spawn(move || {
             loop {
-                println!("{}", format!("{} {}", now, hash));
+                println!("{}", format!("{} {}", read_timestamp(), hash));
                 thread::sleep(time::Duration::from_secs(5));
             }
         });
@@ -84,7 +87,7 @@ fn main() {
             Ok(stream) => {
                 let hash = hash.clone().to_string();
                 thread::spawn(move || {
-                    handle_client(stream, format!("{} {}", read_timestamp(), hash))
+                    handle_client(stream, format!("{} {}\n{}", read_timestamp(), hash, read_counter()))
                 });
             }
             Err(e) => {
