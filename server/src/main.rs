@@ -5,6 +5,7 @@ use std::sync::{Arc};
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
 use std::fs;
+use std::path::Path;
 
 
 fn rand_string() -> String {
@@ -27,11 +28,16 @@ fn read_timestamp() -> String {
 
 fn read_counter() -> String {
     let path = "/var/log/pong-app/counter.txt";
-    let count = match fs::read_to_string(path) {
-        Err(why) => panic!("couldn't read {}: {}", path, why),
-        Ok(file) => file,
-    };
-    return count;
+    // if doesn't exist in shared volume then now one has accessed yet pong app.
+    if Path::new(path).exists() {
+        let count = match fs::read_to_string(path) {
+            Err(why) => panic!("couldn't read {}: {}", path, why),
+            Ok(file) => file,
+        };
+        return count;
+    } else {
+        return 0.to_string();
+    }
 }
 
 
@@ -87,7 +93,7 @@ fn main() {
             Ok(stream) => {
                 let hash = hash.clone().to_string();
                 thread::spawn(move || {
-                    handle_client(stream, format!("{} {}\n{}", read_timestamp(), hash, read_counter()))
+                    handle_client(stream, format!("{} {}</br>Ping / pongs: {}", read_timestamp(), hash, read_counter()))
                 });
             }
             Err(e) => {
