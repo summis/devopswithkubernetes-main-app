@@ -7,6 +7,11 @@ spec:
   selector:
     app: main-app
   ports:
-    - port: 2345
+    - name: main-app
+      port: 2345
       protocol: TCP
       targetPort: 8080
+    - name: pong-app
+      port: 2346
+      protocol: TCP
+      targetPort: 4000

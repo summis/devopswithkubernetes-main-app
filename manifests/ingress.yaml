@@ -2,6 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: main-app-ing
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - http:
@@ -9,4 +11,8 @@ spec:
       - path: /
         backend:
           serviceName: main-app-svc
-          servicePort: 2345
+          servicePort: main-app
+      - path: /foo
+        backend:
+          serviceName: main-app-svc
+          servicePort: pong-app
